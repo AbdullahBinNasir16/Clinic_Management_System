@@ -1,0 +1,9 @@
+[
+  {"appointmentId":"APT-001","patientId":"P1001","patientName":"Ali Hassan","doctorName":"Dr. Imran Malik","date":"2026-04-28","timeSlot":"09:00 AM","reason":"Routine check-up and blood sugar monitoring","status":"COMPLETED","notes":"Patient advised to continue current medication.","createdAt":"2026-05-02 13:12:16"},
+  {"appointmentId":"APT-002","patientId":"P1001","patientName":"Ali Hassan","doctorName":"Dr. Sana Rehman","date":"2026-05-05","timeSlot":"10:30 AM","reason":"Follow-up for X-Ray results","status":"SCHEDULED","notes":"","createdAt":"2026-05-02 13:12:16"},
+  {"appointmentId":"APT-003","patientId":"P1002","patientName":"Fatima Khan","doctorName":"Dr. Tariq Hussain","date":"2026-04-30","timeSlot":"02:00 PM","reason":"Blood pressure consultation","status":"COMPLETED","notes":"BP stabilised. Medication adjusted.","createdAt":"2026-05-02 13:12:16"},
+  {"appointmentId":"APT-004","patientId":"P1003","patientName":"Usman Tariq","doctorName":"Dr. Aisha Noor","date":"2026-05-07","timeSlot":"11:00 AM","reason":"General wellness check","status":"SCHEDULED","notes":"","createdAt":"2026-05-02 13:12:16"},
+  {"appointmentId":"APT-005","patientId":"P1002","patientName":"Fatima Khan","doctorName":"Dr. Imran Malik","date":"2026-05-12","timeSlot":"03:00 PM","reason":"Hypertension management review","status":"SCHEDULED","notes":"","createdAt":"2026-05-02 13:12:16"},
+  {"appointmentId":"APT-006","patientId":"P1002","patientName":"Fatima Khan","doctorName":"Dr. Sana Rehman","date":"2026-06-13","timeSlot":"09:30 AM","reason":"cancer","status":"COMPLETED","notes":"goat","createdAt":"2026-05-02 13:15:54"},
+  {"appointmentId":"APT-007","patientId":"P1005","patientName":"Abdullah Bin Nasir","doctorName":"Dr. Bilal Chaudhry","date":"2030-01-01","timeSlot":"04:30 PM","reason":"he gets no bitches","status":"NO_SHOW","notes":"","createdAt":"2026-05-02 13:18:37"}
+]

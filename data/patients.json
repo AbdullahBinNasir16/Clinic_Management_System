@@ -1,0 +1,7 @@
+[
+  {"patientId":"P1001","fullName":"Ali Hassan","dob":"1990-03-15","gender":"Male","contactNumber":"0300-1234567","address":"House 5, Lahore","emergencyContact":"Sara Hassan – 0300-9876543","medicalConditions":"Diabetes","lastUpdated":"2026-05-02 13:12:16"},
+  {"patientId":"P1002","fullName":"Fatima Khan","dob":"1985-07-22","gender":"Female","contactNumber":"0321-2345678","address":"Flat 3, Karachi","emergencyContact":"Ahmed Khan – 0321-8765432","medicalConditions":"Hypertension","lastUpdated":"2026-05-02 13:12:16"},
+  {"patientId":"P1003","fullName":"Usman Tariq","dob":"2000-11-01","gender":"Male","contactNumber":"0333-3456789","address":"Street 9, Islamabad","emergencyContact":"Ayesha Tariq – 0333-7654321","medicalConditions":"None","lastUpdated":"2026-05-02 13:12:16"},
+  {"patientId":"P1004","fullName":"Taha Yousuf","dob":"2005-10-10","gender":"Male","contactNumber":"0300-03003003","address":"camp nou","emergencyContact":911,"medicalConditions":"None","lastUpdated":"2026-05-02 13:13:11"},
+  {"patientId":"P1005","fullName":"Abdullah Bin Nasir","dob":"2004-12-05","gender":"Male","contactNumber":"0300-040004004","address":"LRC, C-Block","emergencyContact":922,"medicalConditions":"chronic addiction to clash royale","lastUpdated":"2026-05-02 13:17:37"}
+]

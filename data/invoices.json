@@ -1,0 +1,5 @@
+[
+  {"invoiceId":"INV-0001","patientId":"P1001","patientName":"Ali Hassan","appointmentRef":"APT-001","lineItems":"Consultation Fee|1|500.0;Blood Test|1|300.0","discount":0.0,"totalAmount":800.0,"amountPaid":800.0,"status":"PAID","paymentMethod":"Cash","paymentTimestamp":"2026-05-02 13:12:23","createdAt":"2026-05-02 13:12:23"},
+  {"invoiceId":"INV-0002","patientId":"P1001","patientName":"Ali Hassan","appointmentRef":"APT-002","lineItems":"Consultation Fee|1|500.0;X-Ray|1|1200.0","discount":100.0,"totalAmount":1600.0,"amountPaid":800.0,"status":"PARTIALLY_PAID","paymentMethod":"","paymentTimestamp":"","createdAt":"2026-05-02 13:12:23"},
+  {"invoiceId":"INV-0003","patientId":"P1002","patientName":"Fatima Khan","appointmentRef":"APT-003","lineItems":"Consultation Fee|1|500.0","discount":0.0,"totalAmount":500.0,"amountPaid":0.0,"status":"UNPAID","paymentMethod":"","paymentTimestamp":"","createdAt":"2026-05-02 13:12:23"}
+]
