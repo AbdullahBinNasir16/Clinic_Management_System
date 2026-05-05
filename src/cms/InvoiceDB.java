@@ -2,6 +2,7 @@ package cms;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.bson.Document;
 
 public class InvoiceDB {
 
@@ -13,6 +14,56 @@ public class InvoiceDB {
     // ── Persistence ──────────────────────────────────────────────────────────
 
     private static void load() {
+        if (MongoStore.isAvailable()) {
+            List<Document> docs = MongoStore.readAll("invoices");
+            if (docs.isEmpty()) {
+                seedSampleData();
+                persist();
+                return;
+            }
+            for (Document d : docs) {
+                String id = d.getString("invoiceId");
+                if (id == null) continue;
+
+                Invoice inv = new Invoice(id,
+                    d.getString("patientId"), d.getString("patientName"),
+                    d.getString("appointmentRef"), d.getString("createdAt"));
+
+                List<Document> items = d.getList("lineItems", Document.class, new ArrayList<>());
+                for (Document itemDoc : items) {
+                    try {
+                        inv.addLineItem(new Invoice.LineItem(
+                            itemDoc.getString("service"),
+                            itemDoc.getInteger("quantity", 0),
+                            itemDoc.getDouble("unitPrice")
+                        ));
+                    } catch (Exception ignored) {}
+                }
+
+                try { inv.setDiscount(d.getDouble("discount") != null ? d.getDouble("discount") : 0); }
+                catch (Exception ignored) {}
+                try { inv.setTotalAmount(d.getDouble("totalAmount") != null ? d.getDouble("totalAmount") : 0); }
+                catch (Exception ignored) {}
+                try { inv.setAmountPaid(d.getDouble("amountPaid") != null ? d.getDouble("amountPaid") : 0); }
+                catch (Exception ignored) {}
+                try { inv.setStatus(Invoice.Status.valueOf(d.getString("status"))); }
+                catch (Exception ignored) {}
+                String pm = d.getString("paymentMethod");
+                if (pm != null && !pm.isEmpty()) inv.setPaymentMethod(pm);
+                String pd = d.getString("paymentDetails");
+                if (pd != null && !pd.isEmpty()) inv.setPaymentDetails(pd);
+                String pts = d.getString("paymentTimestamp");
+                if (pts != null && !pts.isEmpty()) inv.setPaymentTimestamp(pts);
+
+                records.put(id, inv);
+                try {
+                    int n = Integer.parseInt(id.substring(4));
+                    if (n >= counter) counter = n;
+                } catch (Exception ignored) {}
+            }
+            return;
+        }
+
         String json = JsonStore.read(JsonStore.INVOICES);
         if (json.isEmpty()) {
             seedSampleData();
@@ -53,8 +104,8 @@ public class InvoiceDB {
             catch (Exception ignored) {}
             String pm = m.get("paymentMethod");
             if (pm != null && !pm.isEmpty()) inv.setPaymentMethod(pm);
-            String pts = m.get("paymentTimestamp");
-            if (pts != null && !pts.isEmpty()) inv.setPaymentTimestamp(pts);
+                String pd = m.get("paymentDetails");
+                if (pd != null && !pd.isEmpty()) inv.setPaymentDetails(pd);
 
             records.put(id, inv);
             try {
@@ -65,13 +116,40 @@ public class InvoiceDB {
     }
 
     public static void persist() {
+        if (MongoStore.isAvailable()) {
+            List<Document> docs = new ArrayList<>();
+            for (Invoice inv : records.values()) {
+                List<Document> items = new ArrayList<>();
+                for (Invoice.LineItem item : inv.getLineItems()) {
+                    items.add(new Document("service", item.getService())
+                        .append("quantity", item.getQuantity())
+                        .append("unitPrice", item.getUnitPrice()));
+                }
+                docs.add(new Document("invoiceId", inv.getInvoiceId())
+                    .append("patientId", inv.getPatientId())
+                    .append("patientName", inv.getPatientName())
+                    .append("appointmentRef", inv.getAppointmentRef())
+                    .append("lineItems", items)
+                    .append("discount", inv.getDiscount())
+                    .append("totalAmount", inv.getTotalAmount())
+                    .append("amountPaid", inv.getAmountPaid())
+                    .append("status", inv.getStatus().name())
+                    .append("paymentMethod", inv.getPaymentMethod() != null ? inv.getPaymentMethod() : "")
+                    .append("paymentDetails", inv.getPaymentDetails() != null ? inv.getPaymentDetails() : "")
+                    .append("paymentTimestamp", inv.getPaymentTimestamp() != null ? inv.getPaymentTimestamp() : "")
+                    .append("createdAt", inv.getCreatedAt()));
+            }
+            MongoStore.replaceCollection("invoices", docs);
+            return;
+        }
+
         List<String> objs = new ArrayList<>();
         for (Invoice inv : records.values()) {
             // Encode line items as svc|qty|price;...
             StringBuilder li = new StringBuilder();
             for (Invoice.LineItem item : inv.getLineItems()) {
                 if (li.length() > 0) li.append(";");
-                li.append(item.getService().replace("|","").replace(";",""))
+                li.append(item.getService().replace("|", "").replace(";", ""))
                   .append("|").append(item.getQuantity())
                   .append("|").append(item.getUnitPrice());
             }
@@ -86,6 +164,7 @@ public class InvoiceDB {
                 "amountPaid",        String.valueOf(inv.getAmountPaid()),
                 "status",            inv.getStatus().name(),
                 "paymentMethod",     inv.getPaymentMethod()    != null ? inv.getPaymentMethod()    : "",
+                "paymentDetails",    inv.getPaymentDetails()   != null ? inv.getPaymentDetails()   : "",
                 "paymentTimestamp",  inv.getPaymentTimestamp() != null ? inv.getPaymentTimestamp() : "",
                 "createdAt",         inv.getCreatedAt()
             ));
@@ -125,6 +204,29 @@ public class InvoiceDB {
 
     public static void save(Invoice inv) {
         records.put(inv.getInvoiceId(), inv);
+        if (MongoStore.isAvailable()) {
+            List<Document> items = new ArrayList<>();
+            for (Invoice.LineItem item : inv.getLineItems()) {
+                items.add(new Document("service", item.getService())
+                    .append("quantity", item.getQuantity())
+                    .append("unitPrice", item.getUnitPrice()));
+            }
+            MongoStore.upsert("invoices", new Document("invoiceId", inv.getInvoiceId())
+                .append("patientId", inv.getPatientId())
+                .append("patientName", inv.getPatientName())
+                .append("appointmentRef", inv.getAppointmentRef())
+                .append("lineItems", items)
+                .append("discount", inv.getDiscount())
+                .append("totalAmount", inv.getTotalAmount())
+                .append("amountPaid", inv.getAmountPaid())
+                .append("status", inv.getStatus().name())
+                .append("paymentMethod", inv.getPaymentMethod() != null ? inv.getPaymentMethod() : "")
+                .append("paymentDetails", inv.getPaymentDetails() != null ? inv.getPaymentDetails() : "")
+                .append("paymentTimestamp", inv.getPaymentTimestamp() != null ? inv.getPaymentTimestamp() : "")
+                .append("createdAt", inv.getCreatedAt()),
+                "invoiceId");
+            return;
+        }
         persist();
     }
 

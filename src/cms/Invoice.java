@@ -33,6 +33,7 @@ public class Invoice {
     private double totalAmount;
     private Status status;
     private String paymentMethod;
+    private String paymentDetails;
     private String paymentTimestamp;
     private double amountPaid;
     private String createdAt;
@@ -65,6 +66,7 @@ public class Invoice {
     public double          getTotalAmount()    { return totalAmount; }
     public Status          getStatus()         { return status; }
     public String          getPaymentMethod()  { return paymentMethod; }
+    public String          getPaymentDetails() { return paymentDetails; }
     public String          getPaymentTimestamp(){ return paymentTimestamp; }
     public double          getAmountPaid()     { return amountPaid; }
     public String          getCreatedAt()      { return createdAt; }
@@ -74,6 +76,7 @@ public class Invoice {
     public void setTotalAmount(double t)        { this.totalAmount = t; }
     public void setStatus(Status s)             { this.status = s; }
     public void setPaymentMethod(String m)      { this.paymentMethod = m; }
+    public void setPaymentDetails(String d)     { this.paymentDetails = d; }
     public void setPaymentTimestamp(String ts)  { this.paymentTimestamp = ts; }
     public void setAmountPaid(double a)         { this.amountPaid = a; }
 

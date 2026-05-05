@@ -7,7 +7,7 @@ public class PaymentService {
      * Updates status to Paid, Partially Paid, etc.
      * Throws IllegalArgumentException for invalid inputs.
      */
-    public static void applyPayment(Invoice invoice, double amount, String method) {
+    public static void applyPayment(Invoice invoice, double amount, String method, String details) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Payment amount must be greater than zero.");
         }
@@ -18,10 +18,14 @@ public class PaymentService {
         if (method == null || method.trim().isEmpty()) {
             throw new IllegalArgumentException("Please select a valid payment method.");
         }
+        if (details == null || details.trim().isEmpty()) {
+            throw new IllegalArgumentException("Please provide payment details.");
+        }
 
         double newAmountPaid = invoice.getAmountPaid() + amount;
         invoice.setAmountPaid(newAmountPaid);
         invoice.setPaymentMethod(method);
+        invoice.setPaymentDetails(details);
         invoice.setPaymentTimestamp(PatientDB.now());
 
         if (newAmountPaid >= invoice.getTotalAmount()) {

@@ -46,7 +46,8 @@ public class ProfilePanel extends JPanel {
         outer.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         JPanel card = UIHelper.card("Patient Details");
-        JPanel grid = new JPanel(new GridLayout(0, 1, 0, 10));
+        JPanel grid = new JPanel();
+        grid.setLayout(new BoxLayout(grid, BoxLayout.Y_AXIS));
         grid.setBackground(UIHelper.WHITE);
 
         idLabel          = infoLabel();
@@ -58,21 +59,27 @@ public class ProfilePanel extends JPanel {
         contactField   = UIHelper.makeField();
         addressField   = UIHelper.makeField();
         emergencyField = UIHelper.makeField();
-        conditionsArea = new JTextArea(3, 20);
-        conditionsArea.setFont(UIHelper.FIELD_FONT);
-        conditionsArea.setLineWrap(true);
-        conditionsArea.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(0xAABBCC)),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)));
+        conditionsArea = UIHelper.makeTextArea(4, 20);
+        conditionsArea.setEditable(false);
 
         grid.add(UIHelper.formRow("Patient ID:",         idLabel));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Full Name:",          nameLabel));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Date of Birth:",      dobLabel));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Gender:",             genderLabel));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Contact Number:",     contactField));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Address:",            addressField));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Emergency Contact:",  emergencyField));
-        grid.add(UIHelper.formRow("Medical Conditions:", new JScrollPane(conditionsArea)));
+        grid.add(Box.createVerticalStrut(10));
+        JScrollPane condScroll = new JScrollPane(conditionsArea);
+        condScroll.setPreferredSize(new Dimension(0, 100));
+        grid.add(UIHelper.formRow("Medical Conditions:", condScroll));
+        grid.add(Box.createVerticalStrut(10));
         grid.add(UIHelper.formRow("Last Updated:",       lastUpdatedLabel));
 
         card.add(grid, BorderLayout.CENTER);
