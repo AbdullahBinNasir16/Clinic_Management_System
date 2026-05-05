@@ -5,52 +5,93 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
 
+    private JPanel contentPanel;
+    private SidebarNavigation sidebar;
+    private DashboardPanel dashboardPanel;
+    private ProfilePanel profilePanel;
+    private RegisterPanel registerPanel;
+    private SearchPanel searchPanel;
+    private AppointmentPanel appointmentPanel;
+    private GenerateInvoicePanel invoicePanel;
+    private BillingHistoryPanel billingPanel;
+
     public MainFrame() {
         setTitle("Clinic Management System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(980, 700);
-        setMinimumSize(new Dimension(820, 600));
+        setSize(1200, 800);
+        setMinimumSize(new Dimension(1000, 700));
         setLocationRelativeTo(null);
 
         // ── Top banner ────────────────────────────────────────────────────────
-        JPanel banner = new JPanel(new BorderLayout());
-        banner.setBackground(UIHelper.DARK_BLUE);
-        banner.setPreferredSize(new Dimension(0, 52));
-        banner.setBorder(BorderFactory.createEmptyBorder(0, 24, 0, 24));
+        JPanel banner = UIHelper.headerPanel("Clinic Management System",
+            "Modern clinic management for patients, appointments, and billing.");
 
-        JLabel titleLbl = new JLabel("  Clinic Management System");
-        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        titleLbl.setForeground(Color.WHITE);
-        banner.add(titleLbl, BorderLayout.WEST);
+        // ── Main content area with sidebar + content ──────────────────────────
+        JPanel main = new JPanel(new BorderLayout(0, 0));
+        main.setBackground(UIHelper.PALE_BLUE);
 
-        // ── Tab pane ──────────────────────────────────────────────────────────
-        JTabbedPane tabs = new JTabbedPane();
-        tabs.setFont(UIHelper.HEADER_FONT);
-        tabs.setForeground(UIHelper.DARK_BLUE);
-        tabs.setBackground(UIHelper.PALE_BLUE);
+        // Initialize all panels
+        dashboardPanel = new DashboardPanel();
+        profilePanel = new ProfilePanel();
+        registerPanel = new RegisterPanel();
+        searchPanel = new SearchPanel(profilePanel);
+        appointmentPanel = new AppointmentPanel();
+        invoicePanel = new GenerateInvoicePanel();
+        billingPanel = new BillingHistoryPanel();
 
-        ProfilePanel         profilePanel     = new ProfilePanel();
-        RegisterPanel        registerPanel    = new RegisterPanel();
-        SearchPanel          searchPanel      = new SearchPanel(profilePanel);
-        AppointmentPanel     appointmentPanel = new AppointmentPanel();
-        GenerateInvoicePanel invoicePanel     = new GenerateInvoicePanel();
-        BillingHistoryPanel  billingPanel     = new BillingHistoryPanel();
+        // Sidebar navigation
+        sidebar = new SidebarNavigation();
+        sidebar.addNavItem("Dashboard");
+        sidebar.addNavItem("Register Patient");
+        sidebar.addNavItem("Search Patient");
+        sidebar.addNavItem("Patient Profile");
+        sidebar.addNavItem("Appointments");
+        sidebar.addNavItem("Generate Invoice");
+        sidebar.addNavItem("Billing History");
 
-        tabs.addTab("  Register Patient   ", registerPanel);
-        tabs.addTab("  Search Patient     ", searchPanel);
-        tabs.addTab("  Patient Profile    ", profilePanel);
-        tabs.addTab("  Appointments       ", appointmentPanel);
-        tabs.addTab("  Generate Invoice   ", invoicePanel);
-        tabs.addTab("  Billing History    ", billingPanel);
+        // Content area
+        contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(UIHelper.PALE_BLUE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
-        tabs.addChangeListener(e -> {
-            if (tabs.getSelectedIndex() == 1) searchPanel.refresh();
-            if (tabs.getSelectedIndex() == 3) appointmentPanel.refresh();
-            if (tabs.getSelectedIndex() == 5) billingPanel.refresh();
-        });
+        sidebar.setOnSelectionChanged(this::switchContent);
+        sidebar.selectFirst();
+
+        main.add(sidebar, BorderLayout.WEST);
+        main.add(contentPanel, BorderLayout.CENTER);
 
         add(banner, BorderLayout.NORTH);
-        add(tabs,   BorderLayout.CENTER);
+        add(main, BorderLayout.CENTER);
+    }
+
+    private void switchContent() {
+        int selectedIndex = sidebar.getSelectedIndex();
+        contentPanel.removeAll();
+
+        switch (selectedIndex) {
+            case 0 -> {
+                dashboardPanel.refresh();
+                contentPanel.add(dashboardPanel, BorderLayout.CENTER);
+            }
+            case 1 -> contentPanel.add(registerPanel, BorderLayout.CENTER);
+            case 2 -> {
+                searchPanel.refresh();
+                contentPanel.add(searchPanel, BorderLayout.CENTER);
+            }
+            case 3 -> contentPanel.add(profilePanel, BorderLayout.CENTER);
+            case 4 -> {
+                appointmentPanel.refresh();
+                contentPanel.add(appointmentPanel, BorderLayout.CENTER);
+            }
+            case 5 -> contentPanel.add(invoicePanel, BorderLayout.CENTER);
+            case 6 -> {
+                billingPanel.refresh();
+                contentPanel.add(billingPanel, BorderLayout.CENTER);
+            }
+        }
+
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
 
     public static void main(String[] args) {
@@ -58,3 +99,4 @@ public class MainFrame extends JFrame {
         SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
     }
 }
+
