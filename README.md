@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ---
 
@@ -25,3 +26,6 @@
 - **No-Show** – one-click status update
 - **Reschedule** – inline dialog to pick new date/time; slot conflict check applied
 - **Invoice Integration** – Generate Invoice tab now shows only completed appointments for the selected patient in the Appointment Ref dropdown
+=======
+# Clinic_Management_System
+>>>>>>> 3854ba967d1a7d27a89d66cd2755d8db6491f886
