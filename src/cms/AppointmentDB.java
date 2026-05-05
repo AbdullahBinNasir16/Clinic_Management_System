@@ -2,6 +2,7 @@ package cms;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.bson.Document;
 
 public class AppointmentDB {
 
@@ -29,6 +30,33 @@ public class AppointmentDB {
     // ── Persistence ──────────────────────────────────────────────────────────
 
     private static void load() {
+        if (MongoStore.isAvailable()) {
+            List<Document> docs = MongoStore.readAll("appointments");
+            if (docs.isEmpty()) {
+                seedSampleData();
+                persist();
+                return;
+            }
+            for (Document d : docs) {
+                String id = d.getString("appointmentId");
+                if (id == null) continue;
+                Appointment a = new Appointment(id,
+                    d.getString("patientId"), d.getString("patientName"),
+                    d.getString("doctorName"), d.getString("date"), d.getString("timeSlot"),
+                    d.getString("reason"), d.getString("createdAt"));
+                try { a.setStatus(Appointment.Status.valueOf(d.getString("status"))); }
+                catch (Exception ignored) {}
+                String notes = d.getString("notes");
+                if (notes != null && !notes.isEmpty()) a.setNotes(notes);
+                records.put(id, a);
+                try {
+                    int n = Integer.parseInt(id.substring(4));
+                    if (n >= counter) counter = n;
+                } catch (Exception ignored) {}
+            }
+            return;
+        }
+
         String json = JsonStore.read(JsonStore.APPOINTMENTS);
         if (json.isEmpty()) {
             seedSampleData();
@@ -55,6 +83,24 @@ public class AppointmentDB {
     }
 
     public static void persist() {
+        if (MongoStore.isAvailable()) {
+            List<Document> docs = new ArrayList<>();
+            for (Appointment a : records.values()) {
+                docs.add(new Document("appointmentId", a.getAppointmentId())
+                    .append("patientId", a.getPatientId())
+                    .append("patientName", a.getPatientName())
+                    .append("doctorName", a.getDoctorName())
+                    .append("date", a.getDate())
+                    .append("timeSlot", a.getTimeSlot())
+                    .append("reason", a.getReason())
+                    .append("status", a.getStatus().name())
+                    .append("notes", a.getNotes())
+                    .append("createdAt", a.getCreatedAt()));
+            }
+            MongoStore.replaceCollection("appointments", docs);
+            return;
+        }
+
         List<String> objs = new ArrayList<>();
         for (Appointment a : records.values()) {
             objs.add(JsonStore.obj(
@@ -112,6 +158,20 @@ public class AppointmentDB {
 
     public static void save(Appointment a) {
         records.put(a.getAppointmentId(), a);
+        if (MongoStore.isAvailable()) {
+            MongoStore.upsert("appointments", new Document("appointmentId", a.getAppointmentId())
+                .append("patientId", a.getPatientId())
+                .append("patientName", a.getPatientName())
+                .append("doctorName", a.getDoctorName())
+                .append("date", a.getDate())
+                .append("timeSlot", a.getTimeSlot())
+                .append("reason", a.getReason())
+                .append("status", a.getStatus().name())
+                .append("notes", a.getNotes())
+                .append("createdAt", a.getCreatedAt()),
+                "appointmentId");
+            return;
+        }
         persist();
     }
 

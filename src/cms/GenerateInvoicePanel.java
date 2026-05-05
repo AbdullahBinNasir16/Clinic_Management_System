@@ -13,6 +13,7 @@ public class GenerateInvoicePanel extends JPanel {
     private DefaultTableModel lineItemModel;
     private JTable lineItemTable;
     private JLabel totalLabel, statusLabel;
+    private boolean updatingTotal;
 
     public GenerateInvoicePanel() {
         setLayout(new BorderLayout(0, 0));
@@ -76,7 +77,11 @@ public class GenerateInvoicePanel extends JPanel {
         lineItemTable.setPreferredScrollableViewportSize(new Dimension(600, 130));
 
         // Auto-compute subtotal when user finishes editing a cell
-        lineItemModel.addTableModelListener(e -> refreshTotal());
+        lineItemModel.addTableModelListener(e -> {
+            if (!updatingTotal) {
+                refreshTotal();
+            }
+        });
 
         JPanel lineButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
         lineButtons.setBackground(UIHelper.WHITE);
@@ -175,26 +180,32 @@ public class GenerateInvoicePanel extends JPanel {
     }
 
     private void refreshTotal() {
-        double discount = 0;
-        try { discount = Double.parseDouble(discountField.getText().trim()); }
-        catch (NumberFormatException ignored) {}
+        if (updatingTotal) return;
+        updatingTotal = true;
+        try {
+            double discount = 0;
+            try { discount = Double.parseDouble(discountField.getText().trim()); }
+            catch (NumberFormatException ignored) {}
 
-        double subtotal = 0;
-        // Commit current edits first
-        if (lineItemTable.isEditing()) lineItemTable.getCellEditor().stopCellEditing();
-        for (int r = 0; r < lineItemModel.getRowCount(); r++) {
-            try {
-                int    qty   = Integer.parseInt(lineItemModel.getValueAt(r, 1).toString().trim());
-                double price = Double.parseDouble(lineItemModel.getValueAt(r, 2).toString().trim());
-                double sub   = qty * price;
-                lineItemModel.setValueAt(String.format("%.2f", sub), r, 3);
-                subtotal += sub;
-            } catch (Exception ignored) {
-                lineItemModel.setValueAt("—", r, 3);
+            double subtotal = 0;
+            // Commit current edits first
+            if (lineItemTable.isEditing()) lineItemTable.getCellEditor().stopCellEditing();
+            for (int r = 0; r < lineItemModel.getRowCount(); r++) {
+                try {
+                    int    qty   = Integer.parseInt(lineItemModel.getValueAt(r, 1).toString().trim());
+                    double price = Double.parseDouble(lineItemModel.getValueAt(r, 2).toString().trim());
+                    double sub   = qty * price;
+                    lineItemModel.setValueAt(String.format("%.2f", sub), r, 3);
+                    subtotal += sub;
+                } catch (Exception ignored) {
+                    lineItemModel.setValueAt("—", r, 3);
+                }
             }
+            double total = Math.max(0, subtotal - discount);
+            totalLabel.setText(String.format("Rs. %.2f", total));
+        } finally {
+            updatingTotal = false;
         }
-        double total = Math.max(0, subtotal - discount);
-        totalLabel.setText(String.format("Rs. %.2f", total));
     }
 
     private void saveInvoice() {
